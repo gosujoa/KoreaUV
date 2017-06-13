@@ -8,7 +8,9 @@ int bh = 0;
 int tb = 0;
 int tr = 0;
 int total = 0;
-
+int deleted = 0;
+int miss = 0;
+int insert = 0;
 
 typedef struct Node*NodePtr;
 struct Node {
@@ -178,7 +180,6 @@ void push(struct node** head_ref, int new_data)
 void deleteNode(struct node **head_ref, int key)
 {
 	struct node* tmp = *head_ref, *prev;
-
 	if (tmp != NULL && tmp->data == key)
 	{
 		*head_ref = tmp->next;
@@ -193,7 +194,9 @@ void deleteNode(struct node **head_ref, int key)
 		tmp = tmp->next;
 	}
 
-	if (tmp == NULL) return;
+	if (tmp == NULL) {
+		miss = miss + 1;
+		return; }
 
 	prev->next = tmp->next;
 
@@ -224,7 +227,12 @@ int rbt_bh(RBTPtr self, NodePtr tree, int bh) {
 void inorder_traversal(NodePtr root) {
 	if (root != NULL) {
 		inorder_traversal(root->left);
-		printf("%d   ", root->val);
+		if (root->color == 1) {
+			printf("%dB  ", root->val);
+		}
+		else if (root->color == 0) {
+			printf("%dR  ", root->val);
+		}
 		inorder_traversal(root->right);
 	}
 }
@@ -236,13 +244,16 @@ int main()
 	FILE *fp;
 	int data;
 	RBTPtr rbt = rbt_alloc();
-	fp = fopen("C:\\Users\\김정환\\Desktop\\KU\\자료구조\\input.txt", "r");
+	fp = fopen("C:\\Users\\김정환\\Desktop\\KU\\자료구조\\rbtest\\rbtest\\test02.txt", "r");
 	while (!feof(fp)) {
 		fscanf(fp, "%d", &data);
-		if (data >0)
+		if (data > 0) {
 			push(&head, data);
+			insert++;
+		}
 		else if (data < 0) {
 			deleteNode(&head, -1 * data);
+			deleted = deleted + 1;
 		}
 		else if (data == 0) {
 			break;
@@ -260,7 +271,10 @@ int main()
 	printf("\n\n\n\n");
 	printf("bh is %d\n", rbt_bh(rbt, rbt->root, bh));
 	printf("total is %d\n", tb + tr);
-	printf("nb is %d\n\n\n", tb);
+	printf("nb is %d\n\n", tb);
+	printf("insert = %d\n", insert);
+	printf("deleted = %d\n",deleted-miss);
+	printf("miss = %d\n\n", miss);
 	inorder_traversal(rbt->root);
 	return 0;
 }
